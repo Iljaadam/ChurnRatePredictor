@@ -77,14 +77,9 @@ st.title('Customer Churn Dashboard')
 # Display Model Evaluation Metrics
 st.header('Model Evaluation Metrics')
 st.write("""
-The model's performance is evaluated using several key metrics:
-- **Accuracy** measures the proportion of correct predictions.
-- **Precision** indicates how many of the predicted churns were actual churns.
-- **Recall** reflects the model's ability to identify actual churns.
-- **F1 Score** is the harmonic mean of precision and recall.
-- **ROC AUC** measures the model's ability to distinguish between classes.
+The usual metrics to evaluate the model are used here, more accurately, the sklearn metrics modules.
 
-Below are the calculated metrics for our model:
+Below are the results for the metrics:
 """)
 col1, col2, col3 = st.columns(3)
 col1.metric('Accuracy', f'{accuracy:.2%}')
@@ -94,11 +89,11 @@ col1.metric('F1 Score', f'{f1:.2%}')
 col2.metric('ROC AUC', f'{roc_auc:.2f}')
 
 st.write("""
-- An **accuracy of 85.21%** indicates that the model correctly predicts the churn status 85.21% of the time.
-- A **precision of 74.25%** means that when the model predicts a customer will churn, it's correct 74.25% of the time.
-- A **recall of 67.75%** shows that the model identifies 67.75% of the customers who actually churned.
-- The **F1 Score of 70.84%** balances precision and recall, providing a single metric to evaluate the model.
-- An **ROC AUC of 0.91** suggests the model has a good ability to distinguish between customers who churn and those who do not.
+- **accuracy of 85.21%** shows that the model correctly predicts whether a person has "churned" 85.21% of the time.
+- **precision of 74.25%** means that when the model predicts a customer is likely to churn, it's going to be correct 74.25% of the time.
+- **recall of 67.75%** shows that the model only accounts for 67.75% of the customers who actually churned.
+- **F1 Score of 70.84%** is the all-encompassing index, which can be used for the overall performance measurement.
+- **ROC AUC of 0.91** tends to mean that the model differentiates between the people who churn and those, who do not.
 """)
 
 # Visual Ranking of Customers
@@ -126,15 +121,15 @@ chart = alt.Chart(risk_counts).mark_bar().encode(
 st.altair_chart(chart, use_container_width=True)
 
 st.write("""
-**Interpretation:**
-- The majority of customers fall into the **Low Risk** category, indicating they are unlikely to churn.
-- The **High Risk** segment, although smaller, represents customers who are more likely to churn and may require targeted retention strategies.
+- This here shows, that the majority of customers luckily fall into the **Low Risk** category, meaning that they are less likely to churn.
+- The **High Risk** part, although smaller, vice versa represents the "churners" and has to be reviewed for optimisation in order to not lead to churn.
 """)
 
 # Main Factors Affecting Churn
 st.header('Factors Affecting Churn')
 st.write("""
-Understanding the factors that contribute most to customer churn can help in developing effective retention strategies. Here are the top 5 features influencing churn:
+As always, feature review is important, due to the underlying nature of a feature choice, which dictates the model's performance.
+Here you can see top 5 features:
 """)
 # Fit the model on the entire dataset for feature importances
 model.fit(X, y)
@@ -154,35 +149,32 @@ chart = alt.Chart(top_features).mark_bar().encode(
 st.altair_chart(chart, use_container_width=True)
 
 st.write("""
-**Interpretation:**
-- The features with the highest importance scores have the most significant impact on predicting churn.
-- By focusing on these areas, the company can address issues that may be causing customers to leave.
+By utilizing those insights, it can be retroactively found out, what exacly brings the most reasons for churn and obviously how to reduce it.
 """)
 
 # Customer Segments
 st.header('Customer Segments')
 st.write("""
-Below are the average metrics for each customer segment:
+Here are the average metrics spanned across each customer segment:
 """)
 st.dataframe(segment_metrics)
 
 st.write("""
-**Interpretation:**
-- **Low Risk** customers have the longest average tenure (52.15 months) and the lowest average churn probability (less than 1%).
-- **Medium Risk** customers have a moderate tenure and churn probability.
-- **High Risk** customers have the shortest average tenure (17.22 months) and the highest average monthly charges ($75.27), with a high churn probability (65.53%).
-- Higher monthly charges and shorter tenure are associated with increased churn risk.
+- **Low Risk** customers have the longest average tenure (52.15 months) and the lowest average churn probability (less than 1%). Which is rather not surprising, as they are the longest there.
+- **Medium Risk** customers have a moderate tenure and churn probability. (Self-explanatory)
+- **High Risk** customers have the shortest average tenure (17.22 months) and the highest average monthly charges ($75.27), with a high churn probability (65.53%). It seems as the less the customer is there, and the more they pay,
+the more risk is associated with them. We tend to think that it might be connected to contract length, as the people who have longer tenure might be getting better deals.
 """)
 
 # Recommended Retention Strategies
 st.header('Retention Strategies')
 st.write("""
-Based on the customer segments, here are some recommended retention strategies:
+We took some liberty in proposing a couple of solutions for each group:
 """)
 strategies = {
-    'High': 'Offer discounts or loyalty rewards to retain high-risk customers.',
-    'Medium': 'Provide personalized offers or improved customer support.',
-    'Low': 'Maintain current satisfaction levels to keep low-risk customers engaged.'
+    'High': 'Some discounts or loyalty programs might be in order to facilitate the sunken cost fallacy amongst them.',
+    'Medium': 'Its important for this group to continue using the product, in order to reach the tenure cut off. Therefore improve customer support and maybe some special considerations for this group, expiring as they reach the highest tenure brackets.',
+    'Low': 'Find out why the current satisfaction levels are so high and figure out how to maintain them.'
 }
 for risk_level, strategy in strategies.items():
     st.subheader(f'{risk_level} Risk')
@@ -191,7 +183,7 @@ for risk_level, strategy in strategies.items():
 # Total Drop Rate vs. Predicted Drop Rate
 st.header('Total Drop Rate vs. Predicted Drop Rate')
 st.write("""
-Comparing the actual drop rate with the predicted drop rate helps assess the model's accuracy in estimating churn.
+Estimating churn by actual/predicted drop rates:
 """)
 actual_drop_rate = data['Churn'].mean()
 predicted_drop_rate = data['Churn_Pred'].mean()
@@ -200,14 +192,14 @@ col1.metric('Actual Drop Rate', f'{actual_drop_rate:.2%}')
 col2.metric('Predicted Drop Rate', f'{predicted_drop_rate:.2%}')
 
 st.write("""
-- The **actual drop rate is 26.54%**, meaning that approximately a quarter of customers have churned.
-- The **model's predicted drop rate is 24.21%**, which is close to the actual rate, indicating good predictive performance.
+- The **actual drop rate is 26.54%**, meaning that approximately a quarter of customers have actually churned.
+- The **model's predicted drop rate is 24.21%**, which is fairly close to the actual rate in our opinion, indicating suitable predictive performance.
 """)
 
 # Predicted Churn Rates by Segment
 st.header('Predicted Churn Rates by Customer Segment')
 st.write("""
-The average predicted churn probability for each segment is displayed below:
+Simple visualisation for explanatory purposes, by the segment:
 """)
 chart = alt.Chart(segment_metrics).mark_bar().encode(
     x=alt.X('Churn_Risk', sort=['High', 'Medium', 'Low']),
@@ -224,13 +216,14 @@ st.write("""
 - **High Risk** customers have an average predicted churn probability of 65.53%.
 - **Medium Risk** customers have an average predicted churn probability of 14.12%.
 - **Low Risk** customers have an average predicted churn probability of less than 1%.
-- This segmentation helps prioritize retention efforts towards customers most likely to churn.
+As we touched on it before, the categorisation of customers allows the business to prioritize certain groups and employ targeted strategies to optimize the performance of the product.
+Here it's clear what group we should be targeting first, as 65.53% is a lot of customers wasted.
 """)
 
 # Confusion Matrix
 st.header('Confusion Matrix')
 st.write("""
-The confusion matrix provides a detailed breakdown of the model's performance:
+The confusion matrix provides a more scrupulous visualization of the model's performance:
 """)
 cm = confusion_matrix(y, y_pred)
 cm_df = pd.DataFrame(cm, index=['Actual Negative', 'Actual Positive'], columns=['Predicted Negative', 'Predicted Positive'])
@@ -246,7 +239,7 @@ st.write("""
 # Classification Report
 st.header('Classification Report')
 st.write("""
-The classification report provides precision, recall, and F1-score for each class:
+The classification report provides precision, recall, and F1-score for both churners and non-churners:
 """)
 report = classification_report(y, y_pred, zero_division=0)
 st.text(report)
@@ -258,13 +251,13 @@ st.write("""
 - For the **"Churn"** class:
   - **Precision (74%)**: When the model predicts churn, it's correct 74% of the time.
   - **Recall (68%)**: The model correctly identified 68% of the actual churners.
-- **Overall**, the model performs well, but there's room for improvement in detecting all customers who may churn.
+- Overall, that shows that the model performs relatively well, but also that there's still room for improvement in detecting whether the customer will churn.
 """)
 
 # Conclusion
 st.header('Conclusion')
 st.write("""
-The customer churn model demonstrates good predictive capabilities, with an accuracy of over 85% and a high ROC AUC score of 0.91. The model effectively segments customers based on their churn risk, allowing for targeted retention strategies.
-
-By focusing on the factors influencing churn and addressing the needs of high-risk customers, the company can reduce churn rates and improve customer satisfaction.
+The model produces fairly capable predictions, which may even be actionable, with an accuracy of over 85% and a high ROC AUC score of 0.91. Which we would consider to be actionable for businesses at those rates.
+Last but not least, the model also is capable of effectively dividing customers based on their churn risk, as covered before, allowing for targeted strategy planning and a more optimized approach for churn removal.
+We believe that this model would be realistically useful for churn identification and minimization.
 """)
